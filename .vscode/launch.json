@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run share2containers",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/share2containers.py",
+      "console": "internalConsole",
+      "justMyCode": true,
+
+      "args": [
+        "--url", "${env:DEEP_RESEARCH_URL}",
+        "--slug", "${env:slug}",
+        "--out", "${workspaceFolder}/containers"
+      ],
+
+      "envFile": "${workspaceFolder}/.env",
+
+      "python": "/home/codespace/.python/current/bin/python"
+    }
+  ],
+    // "inputs": [
+    //     {
+    //     "id": "slug",
+    //     "type": "promptString",
+    //     "description": "Enter the slug for the research project",
+    //     "default": "${env:SLUG}"
+    //     }
+    // ]
+}

@@ -1,0 +1,108 @@
+[
+    {
+        "label": "argparse,",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse.",
+        "description": "argparse.",
+        "detail": "argparse.",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "BeautifulSoup",
+        "importPath": "bs4",
+        "description": "bs4",
+        "isExtraImport": true,
+        "detail": "bs4",
+        "documentation": {}
+    },
+    {
+        "label": "html2text,",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "html2text.",
+        "description": "html2text.",
+        "detail": "html2text.",
+        "documentation": {}
+    },
+    {
+        "label": "toklen",
+        "kind": 2,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "def toklen(txt:str)->int: return len(enc.encode(txt))\ndef fetch_html(url:str)->str:\n    r = requests.get(url, timeout=30,\n                     headers={\"User-Agent\":\"Mozilla/5.0 (share2containers)\"})\n    r.raise_for_status()\n    return r.text\ndef assistant_html_to_md(html:str)->str:\n    soup = BeautifulSoup(html, \"html.parser\")\n    md_blocks=[]\n    for art in soup.find_all(\"article\"):",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_html",
+        "kind": 2,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "def fetch_html(url:str)->str:\n    r = requests.get(url, timeout=30,\n                     headers={\"User-Agent\":\"Mozilla/5.0 (share2containers)\"})\n    r.raise_for_status()\n    return r.text\ndef assistant_html_to_md(html:str)->str:\n    soup = BeautifulSoup(html, \"html.parser\")\n    md_blocks=[]\n    for art in soup.find_all(\"article\"):\n        if art.get(\"data-message-author-role\")==\"assistant\":",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "assistant_html_to_md",
+        "kind": 2,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "def assistant_html_to_md(html:str)->str:\n    soup = BeautifulSoup(html, \"html.parser\")\n    md_blocks=[]\n    for art in soup.find_all(\"article\"):\n        if art.get(\"data-message-author-role\")==\"assistant\":\n            md_blocks.append(html2text.html2text(str(art)))\n    return \"\\n\\n\".join(md_blocks)\ndef chunk_text(md:str,max_toks:int=350,overlap:int=50):\n    tokens = enc.encode(md)\n    i=0",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "chunk_text",
+        "kind": 2,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "def chunk_text(md:str,max_toks:int=350,overlap:int=50):\n    tokens = enc.encode(md)\n    i=0\n    while i < len(tokens):\n        j=min(i+max_toks,len(tokens))\n        yield enc.decode(tokens[i:j])\n        i = j-overlap\ndef pack_chunks(chunks, slug, out_dir:Path):\n    file_idx=1; buf=[]; buf_tok=0; buf_bytes=0\n    for n,chunk in enumerate(chunks,1):",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "pack_chunks",
+        "kind": 2,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "def pack_chunks(chunks, slug, out_dir:Path):\n    file_idx=1; buf=[]; buf_tok=0; buf_bytes=0\n    for n,chunk in enumerate(chunks,1):\n        hdr=f\"### [{slug}] – part {n}\\n\\n\"\n        chunk_blob = hdr+chunk.strip()+\"\\n\"\n        t=toklen(chunk_blob); b=len(chunk_blob.encode())\n        if (buf_tok+t>PACK_TOK_LIMIT) or (buf_bytes+b>PACK_BYTE_LIMIT):\n            _write(buf, slug, file_idx, out_dir); file_idx+=1; buf=[]; buf_tok=0; buf_bytes=0\n        buf.append(chunk_blob); buf_tok+=t; buf_bytes+=b\n    if buf: _write(buf, slug, file_idx, out_dir)",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "def main(url:str, slug:str, out_dir:Path):\n    print(\"Fetching share page …\")\n    html = fetch_html(url)\n    print(\"Converting assistant messages → Markdown …\")\n    md   = assistant_html_to_md(html)\n    print(\"Chunking and packing …\")\n    chunks = list(chunk_text(md, MAX_CHUNK_TOKENS, OVERLAP_TOKENS))\n    pack_chunks(chunks, slug, out_dir)\nif __name__==\"__main__\":\n    p=argparse.ArgumentParser()",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_CHUNK_TOKENS",
+        "kind": 5,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "MAX_CHUNK_TOKENS = 350\nOVERLAP_TOKENS   = 50\nPACK_TOK_LIMIT   = 95_000        # stay well under internal 2 M limit\nPACK_BYTE_LIMIT  = 18_000_000    # ≈18 MB per file\nenc = tiktoken.get_encoding(\"cl100k_base\")\n# -----------------------------\ndef toklen(txt:str)->int: return len(enc.encode(txt))\ndef fetch_html(url:str)->str:\n    r = requests.get(url, timeout=30,\n                     headers={\"User-Agent\":\"Mozilla/5.0 (share2containers)\"})",
+        "detail": "src.share2containers",
+        "documentation": {}
+    },
+    {
+        "label": "enc",
+        "kind": 5,
+        "importPath": "src.share2containers",
+        "description": "src.share2containers",
+        "peekOfCode": "enc = tiktoken.get_encoding(\"cl100k_base\")\n# -----------------------------\ndef toklen(txt:str)->int: return len(enc.encode(txt))\ndef fetch_html(url:str)->str:\n    r = requests.get(url, timeout=30,\n                     headers={\"User-Agent\":\"Mozilla/5.0 (share2containers)\"})\n    r.raise_for_status()\n    return r.text\ndef assistant_html_to_md(html:str)->str:\n    soup = BeautifulSoup(html, \"html.parser\")",
+        "detail": "src.share2containers",
+        "documentation": {}
+    }
+]
